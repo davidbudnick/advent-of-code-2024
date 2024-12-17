@@ -48,49 +48,48 @@ func main() {
 }
 
 func isAscending(numbers []int) bool {
-	return checkOrder(numbers, true, false)
+	return checkOrder(numbers, true)
 }
 
 func isDescending(numbers []int) bool {
-	return checkOrder(numbers, false, false)
+	return checkOrder(numbers, false)
 }
 
-func checkOrder(numbers []int, ascending bool, rerun bool) bool {
-	var errcount int
-	for i := 1; i < len(numbers); i++ {
-		if numbers[i] == numbers[i-1] {
-			errcount++
-		}
-
-		if absInt(numbers[i]-numbers[i-1]) > 3 {
-			errcount++
-		}
-
-		if ascending && numbers[i] < numbers[i-1] {
-			errcount++
-		} else if !ascending && numbers[i] > numbers[i-1] {
-			errcount++
-		}
-	}
-
-	if errcount == 0 {
+func checkOrder(numbers []int, ascending bool) bool {
+	if isValidSequence(numbers, ascending) {
+		fmt.Printf("%v: SAFE (no removal needed)\n", numbers)
 		return true
 	}
 
-	if !rerun {
-		if errcount == 1 {
-			for i := 0; i < len(numbers); i++ {
-				tempNumbers := make([]int, len(numbers))
-				copy(tempNumbers, numbers)
-				tempNumbers = append(tempNumbers[:i], tempNumbers[i+1:]...)
-				if checkOrder(tempNumbers, ascending, true) {
-					return true
-				}
-			}
+	for i := 0; i < len(numbers); i++ {
+		tempNumbers := make([]int, len(numbers))
+		copy(tempNumbers, numbers)
+		tempNumbers = append(tempNumbers[:i], tempNumbers[i+1:]...)
+		if isValidSequence(tempNumbers, ascending) {
+			fmt.Printf("%v: SAFE (removed %d at position %d)\n", numbers, numbers[i], i)
+			return true
 		}
 	}
 
+	fmt.Printf("%v: UNSAFE\n", numbers)
 	return false
+}
+
+func isValidSequence(numbers []int, ascending bool) bool {
+	for i := 1; i < len(numbers); i++ {
+		// Check order
+		if ascending && numbers[i] <= numbers[i-1] {
+			return false
+		}
+		if !ascending && numbers[i] >= numbers[i-1] {
+			return false
+		}
+		// Check jump size
+		if absInt(numbers[i]-numbers[i-1]) > 3 {
+			return false
+		}
+	}
+	return true
 }
 
 func absInt(n int) int {
