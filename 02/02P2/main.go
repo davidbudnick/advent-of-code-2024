@@ -48,14 +48,14 @@ func main() {
 }
 
 func isAscending(numbers []int) bool {
-	return checkOrder(numbers, true)
+	return checkOrder(numbers, true, false)
 }
 
 func isDescending(numbers []int) bool {
-	return checkOrder(numbers, false)
+	return checkOrder(numbers, false, false)
 }
 
-func checkOrder(numbers []int, ascending bool) bool {
+func checkOrder(numbers []int, ascending bool, rerun bool) bool {
 	var errcount int
 	for i := 1; i < len(numbers); i++ {
 		if numbers[i] == numbers[i-1] {
@@ -77,11 +77,15 @@ func checkOrder(numbers []int, ascending bool) bool {
 		return true
 	}
 
-	if errcount == 1 {
-		for i := 0; i < len(numbers); i++ {
-			var tempNumbers []int = append(numbers[:i], numbers[i+1:]...)
-			if checkOrder(tempNumbers, ascending) {
-				return true
+	if !rerun {
+		if errcount == 1 {
+			for i := 0; i < len(numbers); i++ {
+				tempNumbers := make([]int, len(numbers))
+				copy(tempNumbers, numbers)
+				tempNumbers = append(tempNumbers[:i], tempNumbers[i+1:]...)
+				if checkOrder(tempNumbers, ascending, true) {
+					return true
+				}
 			}
 		}
 	}
